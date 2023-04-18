@@ -12,6 +12,7 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import models.AdminObject;
 import models.CustomerObject;
 
 public class BasicConsumer {
@@ -95,7 +96,8 @@ public class BasicConsumer {
             );
             // return CustomerObject.deserialize(record.value());
             consumer.close();
-            return CustomerObject.deserialize(record.value());  
+            String offsetStr = String.valueOf(record.offset()); // Yes it should be equal to the input offset that is passed in the function but is better safe than sorry
+            return CustomerObject.deserialize(offsetStr, record.value());  
         }
         consumer.close();
         return null;
@@ -139,9 +141,6 @@ public class BasicConsumer {
                     "\tKey: " + record.key() +
                     "\tValue: " + record.value()
             );
-            // return CustomerObject.deserialize(record.value());
-            // Append customer to list
-            // convert long to string
             
             try {
                 String offset = String.valueOf(record.offset());
@@ -153,9 +152,49 @@ public class BasicConsumer {
                 System.out.println("Error: " + e);
                 return customers;
             }
-            // customers.add(CustomerObject.deserialize(record.value()));            
         }
         consumer.close();
         return customers;
+    }
+
+    public static List<AdminObject> getAdmins() {
+        final Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
+
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
+
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singletonList(defaultTopic));
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
+
+        // create new list of customers
+        List<AdminObject> admins = new ArrayList<AdminObject>();
+        for (final ConsumerRecord<String, String> record : records) {
+            System.out.print("Consumer group: " + defaultGroupId + "\t");
+            System.out.println("Partition: " + record.partition() +
+                    "\tOffset: " + record.offset() +
+                    "\tKey: " + record.key() +
+                    "\tValue: " + record.value()
+            );
+            
+            try {
+                String offset = String.valueOf(record.offset());
+                AdminObject admin = AdminObject.deserialize(offset, record.value());
+                admins.add(admin);
+            } catch (Exception e) {
+                consumer.close();
+
+                System.out.println("Error: " + e);
+                return admins;
+            }
+        }
+        consumer.close();
+        return admins;
     }
 }

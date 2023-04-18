@@ -13,6 +13,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import models.CustomerObject;
+import models.AdminObject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +29,8 @@ public class Test {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/customers", new GetCustomersHandler());
         server.createContext("/new-customer", new PostNewCustomerHandler());
-        // server.createContext("/customers", new MyHandler());
-        // server.createContext("/customers", new MyHandler());
+        server.createContext("/new-admin", new PostNewAdminHandler());
+        server.createContext("/admins", new GetAdminsHandler());
         // server.createContext("/customers", new MyHandler());
         // server.createContext("/customers", new MyHandler());
         // server.createContext("/customers", new MyHandler());
@@ -113,6 +114,75 @@ public class Test {
                 exchange.sendResponseHeaders(405, -1); // method not allowed
             }
 
+        }
+    }
+
+    static class GetAdminsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if ("GET".equals(exchange.getRequestMethod())) {
+                // get the query string
+                String queryString = exchange.getRequestURI().getQuery();
+                
+                // do something with the query string
+                List<AdminObject> admins = BasicConsumer.getAdmins();
+                JSONObject adminsJson = new JSONObject();
+                JSONObject adminJson = new JSONObject();
+
+                // ListCustomerObject customer = BasicConsumer.getCustomer(47);
+                
+                for (AdminObject admin : admins) {
+                    adminJson.put(admin.getOffset(), admin.toJson());
+                }
+                adminsJson.put("admins", adminJson);
+                String response = adminsJson.toJSONString();
+                // String response = customer.serialize();
+                // send the response
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                OutputStream responseBody = exchange.getResponseBody();
+                responseBody.write(response.getBytes());
+                responseBody.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1); // method not allowed
+            }
+        }
+    }
+ 
+    static class PostNewAdminHandler implements HttpHandler {
+
+        // private BasicProducer userProducer = new BasicProducer();
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if ("POST".equals(exchange.getRequestMethod())) {
+                // read the request body
+                InputStream requestBody = exchange.getRequestBody();
+                
+                byte[] requestBodyBytes = requestBody.readAllBytes();
+                String requestBodyString = new String(requestBodyBytes, StandardCharsets.UTF_8);
+
+                // send the response
+                try {
+                    AdminObject admin = AdminObject.deserialize("", requestBodyString);
+                    BasicProducer.addAdmin(admin);
+                    String response = "new admin added correctly";
+                    exchange.sendResponseHeaders(200, response.getBytes().length);
+                    OutputStream responseBody = exchange.getResponseBody();
+                    responseBody.write(response.getBytes());
+                    responseBody.close();
+                } catch (NullPointerException e) {
+                    String response = "error on adding new customer";
+                    exchange.sendResponseHeaders(500, response.getBytes().length);
+                    OutputStream responseBody = exchange.getResponseBody();
+                    responseBody.write(response.getBytes());
+                    responseBody.close();
+                }
+                                // HashMap<String, String> map = g.fromJson(requestBodyString, HashMap.class);
+                // CustomerObject customer = new CustomerObject(map.get("name"), map.get("surname"), map.get("address"));
+                // System.out.println(customer.toString());
+            } else {
+                exchange.sendResponseHeaders(405, -1); // method not allowed
+            }
         }
     }
 }
