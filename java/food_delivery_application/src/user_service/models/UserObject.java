@@ -1,4 +1,4 @@
-package models;
+package user_service.models;
 
 public class UserObject {
     private String offset;

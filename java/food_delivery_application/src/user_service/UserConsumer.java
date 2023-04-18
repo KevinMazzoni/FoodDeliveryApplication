@@ -1,3 +1,4 @@
+package user_service;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -12,67 +13,28 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import models.AdminObject;
-import models.CustomerObject;
+import user_service.models.AdminObject;
+import user_service.models.CustomerObject;
+import user_service.models.DeliveryManObject;
 
-public class BasicConsumer {
+public class UserConsumer {
     private static final String defaultGroupId = "groupA";
-    private static final String defaultTopic = "consumer_topic";
-
+    private static final String customerTopic = "consumer_topic";
+    private static final String adminTopic = "admin_topic";
+    private static final String deliveryManTopic = "delivery_man_topic";
     private static final String serverAddr = "localhost:9092";
     private static final boolean autoCommit = false;
     private static final int autoCommitIntervalMs = 15000;
 
     // Default is "latest": try "earliest" instead
     private static final String offsetResetStrategy = "earliest";
-
     public static void main(String[] args) {
-        // If there are arguments, use the first as group and the second as topic.
-        // Otherwise, use default group and topic.
-        String groupId = args.length >= 1 ? args[0] : defaultGroupId;
-        String topic = args.length >= 2 ? args[1] : defaultTopic;
 
-        final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(topic), new ConsumerRebalanceListener() {
-            @Override
-            public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                System.out.println("Partitions revoked: " + partitions);
-            }
-
-            @Override
-            public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                System.out.println("Partitions assigned: " + partitions);
-                consumer.seek(new TopicPartition(topic, 0), 45);
-
-            }
-        });
     }
 
     public static CustomerObject getCustomer(long offset) {
-        final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(defaultTopic), new ConsumerRebalanceListener() {
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        consumer.subscribe(Collections.singletonList(customerTopic), new ConsumerRebalanceListener() {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 System.out.println("Partitions revoked: " + partitions);
@@ -81,7 +43,7 @@ public class BasicConsumer {
             @Override
             public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
                 System.out.println("Partitions assigned: " + partitions);
-                consumer.seek(new TopicPartition(defaultTopic, 0), offset);
+                consumer.seek(new TopicPartition(customerTopic, 0), offset);
 
             }
         });
@@ -104,19 +66,8 @@ public class BasicConsumer {
     }
 
     public static List<CustomerObject> getCustomers() {
-        final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(defaultTopic), new ConsumerRebalanceListener() {
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        consumer.subscribe(Collections.singletonList(customerTopic), new ConsumerRebalanceListener() {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 System.out.println("Partitions revoked: " + partitions);
@@ -125,7 +76,7 @@ public class BasicConsumer {
             @Override
             public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
                 System.out.println("Partitions assigned: " + partitions);
-                consumer.seek(new TopicPartition(defaultTopic, 0), 0);
+                consumer.seek(new TopicPartition(customerTopic, 0), 0);
 
             }
         });
@@ -158,19 +109,8 @@ public class BasicConsumer {
     }
 
     public static List<AdminObject> getAdmins() {
-        final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(defaultTopic));
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        consumer.subscribe(Collections.singletonList(adminTopic));
         final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
 
         // create new list of customers
@@ -196,5 +136,50 @@ public class BasicConsumer {
         }
         consumer.close();
         return admins;
+    }
+
+    public static List<DeliveryManObject> getDeliveryMen() {
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        consumer.subscribe(Collections.singletonList(deliveryManTopic));
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
+
+        // create new list of customers
+        List<DeliveryManObject> deliveryMen = new ArrayList<DeliveryManObject>();
+        for (final ConsumerRecord<String, String> record : records) {
+            System.out.print("Consumer group: " + defaultGroupId + "\t");
+            System.out.println("Partition: " + record.partition() +
+                    "\tOffset: " + record.offset() +
+                    "\tKey: " + record.key() +
+                    "\tValue: " + record.value()
+            );
+            
+            try {
+                String offset = String.valueOf(record.offset());
+                DeliveryManObject deliveryMan = DeliveryManObject.deserialize(offset, record.value());
+                deliveryMen.add(deliveryMan);
+            } catch (Exception e) {
+                consumer.close();
+
+                System.out.println("Error: " + e);
+                return deliveryMen;
+            }
+        }
+        consumer.close();
+        return deliveryMen;
+    }
+
+    private static Properties kafkaConfig() {
+        final Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
+
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
+
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        return props;
     }
 }

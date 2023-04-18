@@ -1,4 +1,4 @@
-package models;
+package user_service.models;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.jose4j.json.internal.json_simple.parser.JSONParser;
