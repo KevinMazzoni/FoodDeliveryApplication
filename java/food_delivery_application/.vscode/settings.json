@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/Users/daniele/Documents/Polimi/Networked/kafka/kafka_2.13-3.4.0/libs/**/*.jar"
+    ],
+    "java.debug.settings.onBuildFailureProceed": true
+}
