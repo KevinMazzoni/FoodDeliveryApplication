@@ -62,4 +62,8 @@ public class ItemObject {
         }
     }
 
+    public static ItemObject createNew(String offset, String name, long quantity) {
+        return new ItemObject(offset, name, quantity);
+    }
+
 }

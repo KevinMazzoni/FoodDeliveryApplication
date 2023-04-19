@@ -11,10 +11,14 @@ import com.sun.net.httpserver.HttpHandler;
 import order_service.kafka_handlers.OrderConsumer;
 import order_service.kafka_handlers.OrderProducer;
 import order_service.models.ItemObject;
+import order_service.models.ItemTable;
 
+import java.util.Hashtable;
 import java.util.List;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
+import org.jose4j.json.internal.json_simple.parser.JSONParser;
+import org.jose4j.json.internal.json_simple.parser.ParseException;
 
 public class ItemApiHandler {
     private static OrderConsumer consumer = new OrderConsumer();
@@ -70,7 +74,40 @@ public class ItemApiHandler {
         }
     }
     
+    public static class PutItemsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
 
+            if ("PUT".equals(exchange.getRequestMethod())) {
+                InputStream requestBody = exchange.getRequestBody();
+                String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+            
+                JSONObject json = new JSONObject();
+                JSONParser parser = new JSONParser();
+                try {
+                    json = (JSONObject) parser.parse(body);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                json = (JSONObject) json.get("items");
+                for (Object key : json.keySet()) {
+                    JSONObject itemJson = (JSONObject) json.get(key);
+                    ItemObject item = ItemObject.createNew(key.toString(), itemJson.get("name").toString(), Long.parseLong(itemJson.get("quantity").toString()));
+                    OrderProducer.addItem(item);
+                }
+                // ItemObject item = ItemObject.deserialize("", body);
+                // OrderProducer.updateItem(item);
+                
+                String response = "Item updated";
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                OutputStream responseBody = exchange.getResponseBody();
+                responseBody.write(response.getBytes());
+                responseBody.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1); // method not allowed
+            }
+        }
+    }
 
 
 }

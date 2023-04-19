@@ -112,16 +112,32 @@ public class OrderConsumer {
      * 
      */
     private static void listenForItemEvent() {
-        
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("latest"));
         consumer.subscribe(Collections.singletonList(itemTopic));
-
-        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(5, ChronoUnit.SECONDS));
+        
+        // It is necessary to wait for a bit before polling for new events
+        // Otherwise, the consumer will not receive any events
+        // This is because the consumer is not yet subscribed to the topic, I suppose
+        try{
+            Thread.sleep(500);
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        // System.out.println("start listening for item events");
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(2, ChronoUnit.SECONDS));
         if (records.count() > 0) {
-            // Tell the getItemsFast() method to wait for the getItems() method to finish
-            getItemEvent = true;
-            items = getItems();
-            getItemEvent = false;
+            //  A new thread is launched so that the getItems() method can be called asynchronously 
+            // and no messages get lost while waiting
+            Thread t2 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // Tell the getItemsFast() method to wait for the getItems() method to finish
+                    getItemEvent = true;
+                    items = getItems();
+                    getItemEvent = false;
+                }
+            });  
+            t2.start();
         }
         consumer.close();
     }
@@ -144,17 +160,21 @@ public class OrderConsumer {
         return items;
     }
 
-    
-
+    /**
+     * Returns the set of properties for the Kafka consumer.
+     * @param offsetResetStrategy the offset reset strategy, 
+     * either "earliest" or "latest".
+     * "earliest" means that the consumer will start reading from the beginning of the topic.
+     * "latest" means that the consumer will start reading from the end of the topic.
+     * @return
+     */
     private static Properties kafkaConfig(String offsetResetStrategy) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
-
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
-
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         return props;

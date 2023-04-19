@@ -6,8 +6,6 @@ import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.admin.ListTopicsOptions;
-import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewPartitions;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -15,26 +13,21 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import kafka.admin.TopicCommand.TopicDescription;
 import order_service.models.ItemObject;
 import order_service.models.ItemTable;
 
 public class OrderProducer {
     private static final String ItemTopic = "item_topic";
-    // private static final String consumerKey = "consumer_key";
     private static final Hashtable<String, Integer> topicPartitions = ItemTable.instance();
 
-
-    private static final int numMessages = 100000;
     private static final int waitBetweenMsgs = 500;
     private static final boolean waitAck = true;
     private static final String serverAddr = "localhost:9092";
-    private static int partition = 1;
 
-    public static void main(String[] args) {
-
-    }
-
+    /**
+     * Add an item to the item topic
+     * @param item the object representing the item to add
+     */
     public static void addItem(ItemObject item) {
         final Properties adminProps = new Properties();
         adminProps.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
@@ -59,16 +52,13 @@ public class OrderProducer {
         
         try {
             adminClient.createPartitions(newPartitions).all().get();
-            System.out.println("hey!");
-
         } catch (InterruptedException e) {
-            System.out.println("nope!");
-
             e.printStackTrace();
         } catch (ExecutionException e) {
             System.out.println("Topic already has 10 partitions");
-            
         }
+
+        // Check if the partition for the item exists
         if (topicPartitions.get(item.getName()) != null) {
             final KafkaProducer<String, String> producer = new KafkaProducer<>(props);
             final ProducerRecord<String, String> record = new ProducerRecord<>(topic, topicPartitions.get(item.getName()), key, value);
@@ -82,7 +72,6 @@ public class OrderProducer {
                     e1.printStackTrace();
                 }
             }
-
             try {
                 Thread.sleep(waitBetweenMsgs);
             } catch (final InterruptedException e) {
