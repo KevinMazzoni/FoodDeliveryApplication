@@ -10,8 +10,8 @@ import com.sun.net.httpserver.HttpHandler;
 import java.util.List;
 import org.jose4j.json.internal.json_simple.JSONObject;
 
-import user_service.UserConsumer;
-import user_service.UserProducer;
+import user_service.kafka_handlers.UserConsumer;
+import user_service.kafka_handlers.UserProducer;
 import user_service.models.DeliveryManObject;
 
 

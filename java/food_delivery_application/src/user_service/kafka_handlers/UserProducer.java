@@ -1,4 +1,4 @@
-package user_service;
+package user_service.kafka_handlers;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -14,8 +14,8 @@ import user_service.models.CustomerObject;
 import user_service.models.DeliveryManObject;
 
 public class UserProducer {
-    private static final String consumerTopic = "consumer_topic";
-    private static final String consumerKey = "consumer_key";
+    private static final String customerTopic = "customer_topic";
+    private static final String customerKey = "customer_key";
     private static final String adminTopic = "admin_topic";
     private static final String adminKey = "admin_key";
     private static final String deliveryManTopic = "delivery_man_topic";
@@ -38,8 +38,8 @@ public class UserProducer {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         
-        final String topic = consumerTopic;
-        final String key = consumerKey;
+        final String topic = customerTopic;
+        final String key = customerKey;
         final String value = customer.serialize();
         System.out.println(
                 "Topic: " + topic +

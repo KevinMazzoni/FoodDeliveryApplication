@@ -38,7 +38,6 @@ public class AdminObject extends UserObject {
             return new AdminObject(offset, name, surname);
         } catch (ParseException e) {
             e.printStackTrace();
-            // raise exception
             return null;
         }
     }

@@ -1,4 +1,4 @@
-package user_service;
+package user_service.kafka_handlers;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -19,7 +19,7 @@ import user_service.models.DeliveryManObject;
 
 public class UserConsumer {
     private static final String defaultGroupId = "groupA";
-    private static final String customerTopic = "consumer_topic";
+    private static final String customerTopic = "customer_topic";
     private static final String adminTopic = "admin_topic";
     private static final String deliveryManTopic = "delivery_man_topic";
     private static final String serverAddr = "localhost:9092";

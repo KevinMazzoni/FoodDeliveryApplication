@@ -11,8 +11,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import user_service.UserConsumer;
-import user_service.UserProducer;
+import user_service.kafka_handlers.UserConsumer;
+import user_service.kafka_handlers.UserProducer;
 import user_service.models.AdminObject;
 import user_service.models.CustomerObject;
 import user_service.models.DeliveryManObject;
