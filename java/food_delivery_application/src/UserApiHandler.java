@@ -2,12 +2,12 @@
 import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
 
-import user_service.user_api_handlers.AdminApiHandler.PostNewAdminHandler;
-import user_service.user_api_handlers.CustomerApiHandler.GetCustomersHandler;
-import user_service.user_api_handlers.CustomerApiHandler.PostNewCustomerHandler;
-import user_service.user_api_handlers.AdminApiHandler.GetAdminsHandler;
-import user_service.user_api_handlers.DeliveryManApiHandler.GetDeliveryMenHandler;
-import user_service.user_api_handlers.DeliveryManApiHandler.PostNewDeliveryManHandler;
+import user_service.user_api_helpers.AdminApiHelper.GetAdminsHandler;
+import user_service.user_api_helpers.AdminApiHelper.PostNewAdminHandler;
+import user_service.user_api_helpers.CustomerApiHelper.GetCustomersHandler;
+import user_service.user_api_helpers.CustomerApiHelper.PostNewCustomerHandler;
+import user_service.user_api_helpers.DeliveryManApiHelper.GetDeliveryMenHandler;
+import user_service.user_api_helpers.DeliveryManApiHelper.PostNewDeliveryManHandler;
 
 public class UserApiHandler {
     public static void main(String[] args) throws Exception {

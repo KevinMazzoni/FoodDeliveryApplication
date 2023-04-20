@@ -15,9 +15,13 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import order_service.models.ItemObject;
 import order_service.models.ItemTable;
+import order_service.models.OrderObject;
 
 public class OrderProducer {
     private static final String ItemTopic = "item_topic";
+    private static final String OrderTopic = "order_topic";
+    private static final String ShippingTopic = "shipping_topic";
+
     private static final Hashtable<String, Integer> topicPartitions = ItemTable.instance();
 
     private static final int waitBetweenMsgs = 500;
@@ -83,6 +87,43 @@ public class OrderProducer {
             System.out.println("Item not found");
         }
 
+    }
+
+    public static void addOrder(OrderObject order) {
+        final Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        
+        final String topic = OrderTopic;
+        // Assign a random key that is only 8 characters long
+        final String key = UUID.randomUUID().toString().substring(0, 8);
+        final String value = order.serialize();
+        System.out.println(
+                "Topic: " + topic +
+                "\tKey: " + key +
+                "\tValue: " + value
+        );
+        final KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+        final ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
+        final Future<RecordMetadata> future = producer.send(record);
+
+        if (waitAck) {
+            try {
+                RecordMetadata ack = future.get();
+                System.out.println("Ack for topic " + ack.topic() + ", partition " + ack.partition() + ", offset " + ack.offset());
+            } catch (InterruptedException | ExecutionException e1) {
+                e1.printStackTrace();
+            }
+        }
+        try {
+            Thread.sleep(waitBetweenMsgs);
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Order Produced");
+        producer.close();
     }
 
 }

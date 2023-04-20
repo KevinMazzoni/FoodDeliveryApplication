@@ -123,7 +123,7 @@ public class OrderConsumer {
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
-        // System.out.println("start listening for item events");
+        System.out.println("start listening for item events");
         final ConsumerRecords<String, String> records = consumer.poll(Duration.of(2, ChronoUnit.SECONDS));
         if (records.count() > 0) {
             //  A new thread is launched so that the getItems() method can be called asynchronously 

@@ -1,4 +1,4 @@
-package user_service.user_api_handlers;
+package user_service.user_api_helpers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
 
-public class CustomerApiHandler {
+public class CustomerApiHelper {
     public static class GetCustomersHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {

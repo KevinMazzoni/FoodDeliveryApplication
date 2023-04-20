@@ -1,4 +1,4 @@
-package order_service.order_api_handlers;
+package order_service.order_api_helpers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +20,12 @@ import org.jose4j.json.internal.json_simple.JSONObject;
 import org.jose4j.json.internal.json_simple.parser.JSONParser;
 import org.jose4j.json.internal.json_simple.parser.ParseException;
 
-public class ItemApiHandler {
-    private static OrderConsumer consumer = new OrderConsumer();
-    static {
-        consumer.start();
+public class ItemApiHelper {
+
+    public static OrderConsumer consumer;
+
+    public ItemApiHelper(OrderConsumer cons) {
+        ItemApiHelper.consumer = cons;
     }
 
     public static class GetItemsHandler implements HttpHandler{
