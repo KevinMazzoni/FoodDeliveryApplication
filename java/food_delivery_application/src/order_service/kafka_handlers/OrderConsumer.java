@@ -18,7 +18,6 @@ import order_service.models.ItemTable;
 import order_service.models.ItemObject;
 
 public class OrderConsumer {
-    private static final String defaultGroupId = "groupA";
     private static final String itemTopic = "item_topic";
     private static final String serverAddr = "localhost:9092";
     private static final boolean autoCommit = false;
@@ -83,7 +82,6 @@ public class OrderConsumer {
             // final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
             
             for (final ConsumerRecord<String, String> record : records) {
-                System.out.print("Consumer group: " + defaultGroupId + "\t");
                 System.out.println("Partition: " + record.partition() +
                         "\tOffset: " + record.offset() +
                         "\tKey: " + record.key() +

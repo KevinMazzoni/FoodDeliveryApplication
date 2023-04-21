@@ -2,7 +2,9 @@ import java.net.InetSocketAddress;
 import com.sun.net.httpserver.HttpServer;
 
 import shipping_service.shipping_api_helpers.ShippingApiHelper;
+import shipping_service.shipping_api_helpers.ShippingApiHelper.GetCustomerShippingsHandler;
 import shipping_service.shipping_api_helpers.ShippingApiHelper.GetShippingsHandler;
+import shipping_service.shipping_api_helpers.ShippingApiHelper.PutShippingHandler;
 import user_service.user_api_helpers.AdminApiHelper.GetAdminsHandler;
 import user_service.user_api_helpers.AdminApiHelper.PostNewAdminHandler;
 import user_service.user_api_helpers.CustomerApiHelper.GetCustomersHandler;
@@ -18,8 +20,9 @@ public class ShippingApiHandler {
         // New Item Handler is launched in order to start the item thread
         HttpServer server = HttpServer.create(new InetSocketAddress(8002), 0);
         server.createContext("/orders", new GetShippingsHandler());
+        server.createContext("/customer-orders", new GetCustomerShippingsHandler());
         // server.createContext("/new-shipping", new PostNewShippingHandler());
-        // server.createContext("/update-shipping", new PutShippingHandler());
+        server.createContext("/update-shipping", new PutShippingHandler());
 
         server.setExecutor(null); // creates a default executor
         server.start();

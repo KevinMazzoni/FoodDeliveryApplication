@@ -36,9 +36,30 @@ public class ShippingConsumer {
     private static List<ItemObject> items = new ArrayList<ItemObject>();
     private static boolean getItemEvent = false;
 
-    public static List<OrderObject> getShippings(String userOffset) {
+    public static OrderObject getShipment(String shippingKey) {
         
         
+        
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("earliest", "groupF"));
+        consumer.assign(Arrays.asList(new TopicPartition(shippingTopic, 0)));
+
+        List<OrderObject> orders = new ArrayList<OrderObject>();
+        
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(1, ChronoUnit.SECONDS));
+        Hashtable<String, Hashtable<String, OrderObject>> orderTable = new Hashtable<String, Hashtable<String, OrderObject>>();
+        OrderObject order = new OrderObject("", items);
+        for (final ConsumerRecord<String, String> record : records) {
+            String[] key = record.key().split(":");
+            if (key.length > 1 && key[0].equals(shippingKey)) {
+                order = OrderObject.deserialize(record.value());    
+                order.setOrderKey(shippingKey);
+            }
+        }
+        consumer.close();
+        return order;
+        }   
+    
+    public static List<OrderObject> getShippings() {
         
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("earliest", "groupD"));
         consumer.assign(Arrays.asList(new TopicPartition(shippingTopic, 0)));
@@ -54,7 +75,43 @@ public class ShippingConsumer {
                 Hashtable<String, OrderObject> order = new Hashtable<String, OrderObject>();
                 OrderObject orderObj = OrderObject.deserialize(record.value());
                 orderObj.setOrderKey(key[0]);
-                
+
+                if (orderTable.containsKey(key[1])) {
+                    orderTable.get(key[1]).put(key[0], orderObj);
+                } else {
+                    order.put(key[0], orderObj);
+                    orderTable.put(key[1], order);
+                }
+            }   
+        }
+        for (String userOffset : orderTable.keySet()) {
+            for (String key : orderTable.get(userOffset).keySet()) {
+                orders.add(orderTable.get(userOffset).get(key));
+            }
+        }
+            // return CustomerObject.deserialize(record.value());
+        consumer.close();
+          
+        return orders;
+    }
+
+    public static List<OrderObject> getCustomerShippings(String userOffset) {
+        
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("earliest", "groupD"));
+        consumer.assign(Arrays.asList(new TopicPartition(shippingTopic, 0)));
+
+        List<OrderObject> orders = new ArrayList<OrderObject>();
+        
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(1, ChronoUnit.SECONDS));
+        Hashtable<String, Hashtable<String, OrderObject>> orderTable = new Hashtable<String, Hashtable<String, OrderObject>>();
+        
+        for (final ConsumerRecord<String, String> record : records) {
+            String[] key = record.key().split(":");
+            if (key.length > 1 && key[1].equals(userOffset)) {
+                Hashtable<String, OrderObject> order = new Hashtable<String, OrderObject>();
+                OrderObject orderObj = OrderObject.deserialize(record.value());
+                orderObj.setOrderKey(key[0]);
+
                 if (orderTable.containsKey(key[1])) {
                     orderTable.get(key[1]).put(key[0], orderObj);
                 } else {
@@ -64,15 +121,15 @@ public class ShippingConsumer {
             }   
         }
 
-        int startingOffset = 0;
-        for (String key : orderTable.get(userOffset).keySet()) {
-            orders.add(orderTable.get(userOffset).get(key));
+        if (orderTable.containsKey(userOffset)) {
+            for (String key : orderTable.get(userOffset).keySet()) {
+                orders.add(orderTable.get(userOffset).get(key));
+            }
         }
             // return CustomerObject.deserialize(record.value());
         consumer.close();
 
         // StreamsBuilder builder = new StreamsBuilder();
-        // builder.build(kafkaConfig("earliest", "groupD"));
         // KStream<String, String> stream = builder.stream(shippingTopic);        
         // KGroupedStream<String, String> groupedStream = stream.groupBy((key, value) -> key);
         // KTable<String, String> aggregatedTable = groupedStream.reduce((aggValue, newValue) -> aggValue + newValue);
@@ -83,6 +140,7 @@ public class ShippingConsumer {
     
         return orders;
     }
+
 
     /**
      * Returns the set of properties for the Kafka consumer.

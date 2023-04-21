@@ -18,7 +18,7 @@ import user_service.models.CustomerObject;
 import user_service.models.DeliveryManObject;
 
 public class UserConsumer {
-    private static final String defaultGroupId = "groupA";
+    private static final String defaultGroupId = "groupH";
     private static final String customerTopic = "customer_topic";
     private static final String adminTopic = "admin_topic";
     private static final String deliveryManTopic = "delivery_man_topic";

@@ -33,6 +33,10 @@ public class OrderObject {
         return orderKey;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
@@ -44,10 +48,10 @@ public class OrderObject {
     public String serialize() {
         JSONObject orderJson = new JSONObject();
         orderJson.put("user_id", getUserOffset());
-        if (orderJson.containsKey("status")) {
+        if (status != null) {
             orderJson.put("status", status.toString());
         } else {
-            orderJson.put("status", "null");
+            orderJson.put("status", "pending");
         }
         JSONObject itemsJson = new JSONObject();
         for (ItemObject item : getItems()) {

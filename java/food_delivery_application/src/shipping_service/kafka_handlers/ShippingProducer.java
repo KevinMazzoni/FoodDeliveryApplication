@@ -30,7 +30,7 @@ public class ShippingProducer {
     private static final String ShippingTopic = "shipping_topic";
     private static final String serverAddr = "localhost:9092";
 
-    private static final String defaultGroupId = "groupB";
+    private static final String defaultGroupId = "groupG";
     private static final boolean autoCommit = false;
     private static final int autoCommitIntervalMs = 15000;
 
@@ -79,7 +79,11 @@ public class ShippingProducer {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        order.setStatus("shipped");
+        
+        if (order.getStatus().equals("pending")) {
+            order.setStatus("shipped");
+        }
+
         final String value = order.serialize();
         final String key = order.getOrderKey();
         //  TODO: Check if the user actually exists
@@ -94,19 +98,19 @@ public class ShippingProducer {
             return;
         }
         final ProducerRecord<String, String> record = new ProducerRecord<>(ShippingTopic, key, value);
-        // final KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-        // Future<RecordMetadata> future = producer.send(record);
+        final KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+        Future<RecordMetadata> future = producer.send(record);
 
-        // if (waitAck) {
-        //     try {
-        //         RecordMetadata metadata = future.get();
-        //         System.out.println("Record sent to partition " + metadata.partition() + " with offset " + metadata.offset());
-        //     } catch (InterruptedException | ExecutionException e) {
-        //         e.printStackTrace();
-        //     }
-        // }
-        // System.out.println("Adding shipping for order: " + order.getOrderKey());
-        // producer.close();
+        if (waitAck) {
+            try {
+                RecordMetadata metadata = future.get();
+                System.out.println("Record sent to partition " + metadata.partition() + " with offset " + metadata.offset());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Adding shipping for order: " + order.getOrderKey());
+        producer.close();
     }
 
     public static void listenForOrderEvents() {
