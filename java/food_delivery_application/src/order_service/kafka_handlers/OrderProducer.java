@@ -95,17 +95,16 @@ public class OrderProducer {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         
-        final String topic = OrderTopic;
         // Assign a random key that is only 8 characters long
-        final String key = UUID.randomUUID().toString().substring(0, 8);
+        final String key = UUID.randomUUID().toString().substring(0, 8)+":"+order.getUserOffset();
         final String value = order.serialize();
         System.out.println(
-                "Topic: " + topic +
+                "Topic: " + OrderTopic +
                 "\tKey: " + key +
                 "\tValue: " + value
         );
         final KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-        final ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
+        final ProducerRecord<String, String> record = new ProducerRecord<>(OrderTopic, key, value);
         final Future<RecordMetadata> future = producer.send(record);
 
         if (waitAck) {

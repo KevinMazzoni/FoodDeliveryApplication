@@ -10,9 +10,12 @@ import org.jose4j.json.internal.json_simple.parser.ParseException;
 
 public class OrderObject {
     private String userOffset;
+    private String orderKey;
     private List<ItemObject> items;
     static JSONParser parser = new JSONParser();
+    String status = "pending";
 
+    // Set status variable with a default value
     public OrderObject(String userOffset, List<ItemObject> items) {
         this.userOffset = userOffset;
         this.items = items;
@@ -26,27 +29,51 @@ public class OrderObject {
         return items;
     }
 
+    public String getOrderKey() {
+        return orderKey;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setOrderKey(String orderKey) {
+        this.orderKey = orderKey;
+    }
+
     public String serialize() {
         JSONObject orderJson = new JSONObject();
-        orderJson.put("userOffset", getUserOffset());
-        for (ItemObject item : getItems()) {
-            orderJson.put(item.getOffset(), item.toJson());
+        orderJson.put("user_id", getUserOffset());
+        if (orderJson.containsKey("status")) {
+            orderJson.put("status", status.toString());
+        } else {
+            orderJson.put("status", "null");
         }
-        
-
+        JSONObject itemsJson = new JSONObject();
+        for (ItemObject item : getItems()) {
+            itemsJson.put(item.getOffset(), item.toJson());
+        }
+        orderJson.put("items", itemsJson);
         return orderJson.toJSONString();
     }
 
     public JSONObject toJson() {
         JSONObject orderJson = new JSONObject();
-        orderJson.put("userOffset", getUserOffset());
-        orderJson.put("items", getItems());
+        orderJson.put("user_id", getUserOffset());
+        orderJson.put("status", status.toString());
+        JSONObject itemsJson = new JSONObject();
+        for (ItemObject item : getItems()) {
+            itemsJson.put(item.getOffset(), item.toJson());
+        }
+        orderJson.put("items", itemsJson);
         return orderJson;
     }
 
     public static OrderObject deserialize(String json) {
         try {
             JSONObject orderJson = (JSONObject) parser.parse(json);
+            
+            String status = (String) orderJson.get("status");
             if (orderJson.containsKey("order")) {
                 orderJson = (JSONObject) orderJson.get("order");
             }
@@ -57,7 +84,11 @@ public class OrderObject {
                 ItemObject item = ItemObject.deserialize((String) itemJson, (String) orderJson.get(itemJson).toString());
                 items.add(item);
             }
-            return new OrderObject(userOffset, items);
+            OrderObject order = new OrderObject(userOffset, items);
+            
+            order.setStatus(status);
+        
+            return order;
         } catch (ParseException e) {
             e.printStackTrace();
             return null;

@@ -33,7 +33,7 @@ public class UserConsumer {
     }
 
     public static CustomerObject getCustomer(long offset) {
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("bnmjytrdfg"));
         consumer.subscribe(Collections.singletonList(customerTopic), new ConsumerRebalanceListener() {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
@@ -66,8 +66,9 @@ public class UserConsumer {
     }
 
     public static List<CustomerObject> getCustomers() {
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("bytfrws"));
         consumer.subscribe(Collections.singletonList(customerTopic), new ConsumerRebalanceListener() {
+            // TODO: This can be simplified by using the consumer.assign method
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 System.out.println("Partitions revoked: " + partitions);
@@ -81,7 +82,7 @@ public class UserConsumer {
             }
         });
         // wait 5 seconds
-        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
 
         // create new list of customers
         List<CustomerObject> customers = new ArrayList<CustomerObject>();
@@ -109,7 +110,7 @@ public class UserConsumer {
     }
 
     public static List<AdminObject> getAdmins() {
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("njuvfxd"));
         consumer.subscribe(Collections.singletonList(adminTopic));
         final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
 
@@ -140,7 +141,7 @@ public class UserConsumer {
 
     public static List<DeliveryManObject> getDeliveryMen() {
 
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig());
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("vdsagsf"));
         consumer.subscribe(Collections.singletonList(deliveryManTopic));
         final ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
 
@@ -169,10 +170,10 @@ public class UserConsumer {
         return deliveryMen;
     }
 
-    private static Properties kafkaConfig() {
+    private static Properties kafkaConfig(String groupId) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
 

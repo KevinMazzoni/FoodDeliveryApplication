@@ -3,6 +3,7 @@ package order_service.kafka_handlers;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,14 +58,16 @@ public class OrderConsumer {
      */
     public static List<ItemObject> getItems() {
         
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("earliest"));
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("earliest", "groupB"));
         
         // wait 5 seconds
         List<ItemObject> items = new ArrayList<ItemObject>();
         
         for (String partitionKey : topicPartitions.keySet()) {
+            
             TopicPartition partition = new TopicPartition(itemTopic, topicPartitions.get(partitionKey));
             consumer.assign(Collections.singletonList(partition));
+            // consumer.assign(Arrays.asList(partition0));
             consumer.seekToEnd(Collections.singletonList(partition));
             Map<TopicPartition, Long>endOffsets = consumer.endOffsets((consumer.assignment()));
             
@@ -112,8 +115,8 @@ public class OrderConsumer {
      * 
      */
     private static void listenForItemEvent() {
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("latest"));
-        consumer.subscribe(Collections.singletonList(itemTopic));
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConfig("latest", "groupA"));
+        consumer.subscribe(Arrays.asList(itemTopic));
         
         // It is necessary to wait for a bit before polling for new events
         // Otherwise, the consumer will not receive any events
@@ -124,22 +127,25 @@ public class OrderConsumer {
             System.out.println("Error: " + e);
         }
         System.out.println("start listening for item events");
-        final ConsumerRecords<String, String> records = consumer.poll(Duration.of(2, ChronoUnit.SECONDS));
-        if (records.count() > 0) {
-            //  A new thread is launched so that the getItems() method can be called asynchronously 
-            // and no messages get lost while waiting
-            Thread t2 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // Tell the getItemsFast() method to wait for the getItems() method to finish
-                    getItemEvent = true;
-                    items = getItems();
-                    getItemEvent = false;
-                }
-            });  
-            t2.start();
+        
+        while (true) {
+            final ConsumerRecords<String, String> records = consumer.poll(Duration.of(2, ChronoUnit.SECONDS));
+            if (records.count() > 0) {
+                //  A new thread is launched so that the getItems() method can be called asynchronously 
+                // and no messages get lost while waiting
+                Thread t2 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Tell the getItemsFast() method to wait for the getItems() method to finish
+                        getItemEvent = true;
+                        items = getItems();
+                        getItemEvent = false;
+                    }
+                });  
+                t2.start();
+            }
         }
-        consumer.close();
+        // consumer.close();
     }
     
     /**
@@ -168,10 +174,10 @@ public class OrderConsumer {
      * "latest" means that the consumer will start reading from the end of the topic.
      * @return
      */
-    private static Properties kafkaConfig(String offsetResetStrategy) {
+    private static Properties kafkaConfig(String offsetResetStrategy, String groupId) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverAddr);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultGroupId);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(autoCommit));
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, String.valueOf(autoCommitIntervalMs));
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetStrategy);
