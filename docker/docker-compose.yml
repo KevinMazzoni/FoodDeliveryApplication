@@ -9,6 +9,7 @@ services:
       - "zookeeper_data:/bitnami"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+
   kafka:
     image: docker.io/bitnami/kafka:3.2
     ports:
@@ -22,13 +23,47 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_LISTENERS=CLIENT://:9093,EXTERNAL://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9093,EXTERNAL://localhost:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9093,EXTERNAL://kafka:9092
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
     depends_on:
       - zookeeper
+
+  backend-user:
+    build: ./java_container/
+    volumes:
+      - ./java_container/user_files:/files
+      - ../java/food_delivery_application/:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - zookeeper
+      - kafka
+
+  backend-shipping:
+    build: ./java_container/
+    volumes:
+      - ./java_container/shipping_files:/files
+      - ../java/food_delivery_application/:/usr/src/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      - zookeeper
+      - kafka
+
+  backend-order:
+    build: ./java_container/
+    volumes:
+      - ./java_container/order_files:/files
+      - ../java/food_delivery_application/:/usr/src/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - zookeeper
+      - kafka
 
 volumes:
    zookeeper_data:
      driver: local
    kafka_data:
      driver: local
+

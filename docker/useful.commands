@@ -1,0 +1,8 @@
+docker exec -ti f414ebcaa1ca /bin/bash     
+kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic item_topic
+
+
+cd usr/src/app/
+rm -r bin
+javac -d bin -cp "lib/*:src/" src/*.java   
+java @src/args.argfile UserApiHandler
