@@ -26,7 +26,7 @@ public class UserProducer {
     private static final int numMessages = 100000;
     private static final int waitBetweenMsgs = 500;
     private static final boolean waitAck = true;
-    private static final String serverAddr = "localhost:9092";
+    private static final String serverAddr = "kafka:9092";
 
     public static void main(String[] args) {
 

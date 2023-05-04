@@ -22,7 +22,7 @@ public class UserConsumer {
     private static final String customerTopic = "customer_topic";
     private static final String adminTopic = "admin_topic";
     private static final String deliveryManTopic = "delivery_man_topic";
-    private static final String serverAddr = "localhost:9092";
+    private static final String serverAddr = "kafka:9092";
     private static final boolean autoCommit = false;
     private static final int autoCommitIntervalMs = 15000;
 

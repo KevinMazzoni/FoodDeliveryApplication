@@ -1,20 +1,18 @@
 package order_service.order_api_helpers;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
 
 import order_service.kafka_handlers.OrderConsumer;
 import order_service.kafka_handlers.OrderProducer;
 import order_service.models.ItemObject;
 import order_service.models.ItemTable;
-
-import java.util.Hashtable;
-import java.util.List;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.jose4j.json.internal.json_simple.parser.JSONParser;

@@ -18,7 +18,7 @@ public class OrderApiHandler {
         new OrderApiHelper(orderConsumer);
 
 
-        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 8001), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8001), 0);
         server.createContext("/items", new GetItemsHandler());
         server.createContext("/new-item", new PostNewItemHandler());
         server.createContext("/update-items", new PutItemsHandler());

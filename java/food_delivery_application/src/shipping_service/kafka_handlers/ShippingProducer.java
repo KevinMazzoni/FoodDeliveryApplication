@@ -15,20 +15,20 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
-
+import user_service.models.CustomerObject;
 import order_service.models.ItemObject;
 import order_service.models.ItemTable;
 import order_service.models.OrderObject;
-import user_service.models.CustomerObject;
+
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
 
 
 public class ShippingProducer {
     private static final String OrderTopic = "order_topic";
     private static final String ShippingTopic = "shipping_topic";
-    private static final String serverAddr = "localhost:9092";
+    private static final String serverAddr = "kafka:9092";
 
     private static final String defaultGroupId = "groupG";
     private static final boolean autoCommit = false;

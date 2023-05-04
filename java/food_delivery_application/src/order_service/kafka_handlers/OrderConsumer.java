@@ -14,12 +14,12 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import order_service.models.ItemTable;
 import order_service.models.ItemObject;
+import order_service.models.ItemTable;
 
 public class OrderConsumer {
     private static final String itemTopic = "item_topic";
-    private static final String serverAddr = "localhost:9092";
+    private static final String serverAddr = "kafka:9092";
     private static final boolean autoCommit = false;
     private static final int autoCommitIntervalMs = 15000;
 

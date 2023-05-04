@@ -26,7 +26,7 @@ public class OrderProducer {
 
     private static final int waitBetweenMsgs = 500;
     private static final boolean waitAck = true;
-    private static final String serverAddr = "localhost:9092";
+    private static final String serverAddr = "kafka:9092";
 
     /**
      * Add an item to the item topic

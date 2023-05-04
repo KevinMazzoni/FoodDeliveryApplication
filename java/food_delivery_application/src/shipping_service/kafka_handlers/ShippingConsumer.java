@@ -22,12 +22,12 @@ import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 
+import order_service.models.ItemObject;
 import order_service.models.ItemTable;
 import order_service.models.OrderObject;
-import order_service.models.ItemObject;
 
 public class ShippingConsumer {
-    private static final String serverAddr = "localhost:9092";
+    private static final String serverAddr = "kafka:9092";
     private static final String shippingTopic = "shipping_topic";
     private static final boolean autoCommit = false;
     private static final int autoCommitIntervalMs = 15000;
@@ -161,7 +161,7 @@ public class ShippingConsumer {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "my-application");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         
         return props;
     }
