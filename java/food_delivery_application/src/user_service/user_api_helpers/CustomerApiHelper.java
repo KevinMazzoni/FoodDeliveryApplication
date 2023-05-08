@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -46,8 +47,15 @@ public class CustomerApiHelper {
                 String response = customersJson.toJSONString();
                 // String response = customer.serialize();
                 // send the response
+
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
+
                 exchange.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream responseBody = exchange.getResponseBody();
+                
                 responseBody.write(response.getBytes());
                 responseBody.close();
             } else {
