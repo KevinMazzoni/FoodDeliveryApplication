@@ -18,6 +18,7 @@ import user_service.models.AdminObject;
 import user_service.models.CustomerObject;
 import user_service.models.DeliveryManObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 // import com.google.gson.Gson;
@@ -36,12 +37,13 @@ public class CustomerApiHelper {
                 // do something with the query string
                 List<CustomerObject> customers = UserConsumer.getCustomers();
                 JSONObject customersJson = new JSONObject();
-                JSONObject customerJson = new JSONObject();
-
+                // JSONObject customerJson = new JSONObject();
+                ArrayList<JSONObject> customerJson = new ArrayList<JSONObject>();
                 // ListCustomerObject customer = BasicConsumer.getCustomer(47);
                 
                 for (CustomerObject customer : customers) {
-                    customerJson.put(customer.getOffset(), customer.toJson());
+                    // customerJson.put(customer.getOffset(), customer.toJson());
+                    customerJson.add(customer.toJson());
                 }
                 customersJson.put("customers", customerJson);
                 String response = customersJson.toJSONString();

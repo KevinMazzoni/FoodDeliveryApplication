@@ -31,6 +31,7 @@ public class CustomerObject extends UserObject {
         customerJson.put("name", getName());
         customerJson.put("surname", getSurname());
         customerJson.put("address", address);
+        customerJson.put("id", getOffset());
         return customerJson;
     }
 

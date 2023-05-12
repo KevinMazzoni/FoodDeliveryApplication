@@ -49,7 +49,6 @@ public class AdminApiHelper {
                 // send the response
                 exchange.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream responseBody = exchange.getResponseBody();
-                responseBody.write(response.getBytes());
                 responseBody.close();
             } else {
                 exchange.sendResponseHeaders(405, -1); // method not allowed
