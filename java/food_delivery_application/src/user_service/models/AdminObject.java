@@ -24,6 +24,8 @@ public class AdminObject extends UserObject {
         JSONObject adminJson = new JSONObject();
         adminJson.put("name", getName());
         adminJson.put("surname", getSurname());
+        adminJson.put("id", getOffset());
+
         return adminJson;
     }
 

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -17,6 +18,7 @@ import order_service.models.OrderObject;
 import shipping_service.kafka_handlers.ShippingConsumer;
 import shipping_service.kafka_handlers.ShippingProducer;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -34,13 +36,17 @@ public class ShippingApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("GET".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 String queryString = exchange.getRequestURI().getQuery();
                 String userId = queryString.split("=")[1];
                 List<OrderObject> orders = ShippingConsumer.getCustomerShippings(userId);
                 JSONObject OrdersJson = new JSONObject();
-                JSONObject orderJson = new JSONObject();
+                ArrayList<JSONObject> orderJson = new ArrayList<JSONObject>();
                 for (OrderObject order : orders) {
-                    orderJson.put(order.getOrderKey(), order.toJson());
+                    orderJson.add(order.toJson());
                 }
                 OrdersJson.put("orders", orderJson);
                 String response = OrdersJson.toJSONString();
@@ -55,11 +61,15 @@ public class ShippingApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("GET".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 List<OrderObject> orders = ShippingConsumer.getShippings();
                 JSONObject OrdersJson = new JSONObject();
-                JSONObject orderJson = new JSONObject();
+                ArrayList<JSONObject> orderJson = new ArrayList<JSONObject>();
                 for (OrderObject order : orders) {
-                    orderJson.put(order.getOrderKey(), order.toJson());
+                    orderJson.add(order.toJson());
                 }
                 OrdersJson.put("orders", orderJson);
                 String response = OrdersJson.toJSONString();
@@ -75,6 +85,10 @@ public class ShippingApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("PUT".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 InputStream requestBody = exchange.getRequestBody();
                 String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
                 try {

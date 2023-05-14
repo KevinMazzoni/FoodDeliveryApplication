@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -17,6 +18,7 @@ import user_service.models.AdminObject;
 import user_service.models.CustomerObject;
 import user_service.models.DeliveryManObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 // import com.google.gson.Gson;
@@ -30,25 +32,29 @@ public class AdminApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("GET".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 // get the query string
                 String queryString = exchange.getRequestURI().getQuery();
                 
                 // do something with the query string
                 List<AdminObject> admins = UserConsumer.getAdmins();
                 JSONObject adminsJson = new JSONObject();
-                JSONObject adminJson = new JSONObject();
+                ArrayList<JSONObject> adminJson = new ArrayList<JSONObject>();
 
                 // ListCustomerObject customer = BasicConsumer.getCustomer(47);
                 
                 for (AdminObject admin : admins) {
-                    adminJson.put(admin.getOffset(), admin.toJson());
+                    adminJson.add(admin.toJson());
+
                 }
                 adminsJson.put("admins", adminJson);
                 String response = adminsJson.toJSONString();
-                // String response = customer.serialize();
-                // send the response
                 exchange.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream responseBody = exchange.getResponseBody();
+                responseBody.write(response.getBytes());
                 responseBody.close();
             } else {
                 exchange.sendResponseHeaders(405, -1); // method not allowed
@@ -63,6 +69,10 @@ public class AdminApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("POST".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 // read the request body
                 InputStream requestBody = exchange.getRequestBody();
                 

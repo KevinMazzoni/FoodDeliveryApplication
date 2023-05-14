@@ -24,6 +24,7 @@ public class DeliveryManObject extends UserObject {
         JSONObject deliveryManJson = new JSONObject();
         deliveryManJson.put("name", getName());
         deliveryManJson.put("surname", getSurname());
+        deliveryManJson.put("id", getOffset());
         return deliveryManJson;
     }
 

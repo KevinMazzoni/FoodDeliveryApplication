@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -11,6 +12,7 @@ import user_service.kafka_handlers.UserConsumer;
 import user_service.kafka_handlers.UserProducer;
 import user_service.models.DeliveryManObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.jose4j.json.internal.json_simple.JSONObject;
 
@@ -22,18 +24,22 @@ public class DeliveryManApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("GET".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 // get the query string
                 String queryString = exchange.getRequestURI().getQuery();
                 
                 // do something with the query string
                 List<DeliveryManObject> deliveryMen = UserConsumer.getDeliveryMen();
                 JSONObject deliveryMenJson = new JSONObject();
-                JSONObject deliveryManJson = new JSONObject();
+                ArrayList<JSONObject> deliveryManJson = new ArrayList<JSONObject>();
 
                 // ListCustomerObject customer = BasicConsumer.getCustomer(47);
                 
                 for (DeliveryManObject deliveryMan : deliveryMen) {
-                    deliveryManJson.put(deliveryMan.getOffset(), deliveryMan.toJson());
+                    deliveryManJson.add(deliveryMan.toJson());
                 }
                 deliveryMenJson.put("deliveryMen", deliveryManJson);
                 String response = deliveryMenJson.toJSONString();
@@ -53,6 +59,10 @@ public class DeliveryManApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("POST".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 // read the request body
                 InputStream requestBody = exchange.getRequestBody();
                 

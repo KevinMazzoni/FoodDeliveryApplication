@@ -44,6 +44,7 @@ public class ItemObject {
         JSONObject itemJson = new JSONObject();
         itemJson.put("name", getName());
         itemJson.put("quantity", getQuantity());
+        itemJson.put("id", getOffset());
         return itemJson;
     }
 

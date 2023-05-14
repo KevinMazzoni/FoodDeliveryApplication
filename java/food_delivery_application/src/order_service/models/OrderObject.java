@@ -70,6 +70,7 @@ public class OrderObject {
             itemsJson.put(item.getOffset(), item.toJson());
         }
         orderJson.put("items", itemsJson);
+        orderJson.put("id", getOrderKey());
         return orderJson;
     }
 

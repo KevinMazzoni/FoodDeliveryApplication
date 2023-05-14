@@ -31,6 +31,10 @@ public class CustomerApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("GET".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 // get the query string
                 String queryString = exchange.getRequestURI().getQuery();
                 
@@ -49,12 +53,6 @@ public class CustomerApiHelper {
                 String response = customersJson.toJSONString();
                 // String response = customer.serialize();
                 // send the response
-
-                Headers headers = exchange.getResponseHeaders();
-                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
-                headers.add("Access-Control-Allow-Methods","GET,POST");
-                headers.add("Access-Control-Allow-Origin","*");
-
                 exchange.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream responseBody = exchange.getResponseBody();
                 
@@ -73,6 +71,10 @@ public class CustomerApiHelper {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if ("POST".equals(exchange.getRequestMethod())) {
+                Headers headers = exchange.getResponseHeaders();
+                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Origin","*");
                 // read the request body
                 InputStream requestBody = exchange.getRequestBody();
                 
