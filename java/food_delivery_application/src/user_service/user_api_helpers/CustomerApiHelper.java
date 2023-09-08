@@ -73,7 +73,7 @@ public class CustomerApiHelper {
             if ("POST".equals(exchange.getRequestMethod())) {
                 Headers headers = exchange.getResponseHeaders();
                 headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
-                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Methods","POST");
                 headers.add("Access-Control-Allow-Origin","*");
                 // read the request body
                 InputStream requestBody = exchange.getRequestBody();

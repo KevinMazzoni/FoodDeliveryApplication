@@ -2,13 +2,13 @@ version: "2"
 
 services:
 
-  # frontend:
-  #   build: ./angular_container/
-  #   ports:
-  #     - "4200:4200"
-  #   volumes:
-  #     - ./angular_container/files:/files
-  #     - ../../FoodDeliveryApplication-FrontEnd:/usr/src/app
+  frontend:
+    build: ./angular_container/
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./angular_container/files:/files
+      - ../../FoodDeliveryApplication-FrontEnd:/usr/src/app
 
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.8
