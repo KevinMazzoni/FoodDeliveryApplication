@@ -68,8 +68,9 @@ public class OrderConsumer {
             consumer.assign(Collections.singletonList(partition));
             // consumer.assign(Arrays.asList(partition0));
             consumer.seekToEnd(Collections.singletonList(partition));
-            Map<TopicPartition, Long>endOffsets = consumer.endOffsets((consumer.assignment()));
-            
+            // Map<TopicPartition, Long>endOffsets = consumer.endOffsets((consumer.assignment()));
+            // set all offsets to 0
+            Map<TopicPartition, Long>endOffsets = 
             if (endOffsets.get(partition) == 0) {
                 System.out.println("Partition " + partitionKey + " is empty");
                 

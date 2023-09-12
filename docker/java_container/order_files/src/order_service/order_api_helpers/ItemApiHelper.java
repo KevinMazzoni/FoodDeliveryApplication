@@ -85,11 +85,13 @@ public class ItemApiHelper {
     public static class PutItemsHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-
+            System.out.println("lecose");
             if ("PUT".equals(exchange.getRequestMethod())) {
+                System.out.println("PUT");
                 Headers headers = exchange.getResponseHeaders();
-                headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
-                headers.add("Access-Control-Allow-Methods","GET,POST");
+                headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+                // headers.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+                headers.add("Access-Control-Allow-Methods","GET,POST,PUT");
                 headers.add("Access-Control-Allow-Origin","*");
                 InputStream requestBody = exchange.getRequestBody();
                 String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
@@ -101,16 +103,24 @@ public class ItemApiHelper {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                json = (JSONObject) json.get("items");
-                for (Object key : json.keySet()) {
-                    JSONObject itemJson = (JSONObject) json.get(key);
-                    ItemObject item = ItemObject.createNew(key.toString(), itemJson.get("name").toString(), Long.parseLong(itemJson.get("quantity").toString()));
+
+                System.out.println(json.get("items"));
+                ArrayList<JSONObject> itemsJson = (ArrayList<JSONObject>) json.get("items");
+                System.out.println(itemsJson);
+                for (JSONObject itemJson : itemsJson) {
+                    ItemObject item = ItemObject.createNew(itemJson.get("id").toString(), itemJson.get("name").toString(), Long.parseLong(itemJson.get("quantity").toString()));
                     OrderProducer.addItem(item);
                 }
-                // ItemObject item = ItemObject.deserialize("", body);
-                // OrderProducer.updateItem(item);
-                
+
+                // json = (JSONObject) json.get("items");
+                // for (Object key : json.keySet()) {
+                //     JSONObject itemJson = (JSONObject) json.get(key);
+                //     ItemObject item = ItemObject.createNew(key.toString(), itemJson.get("name").toString(), Long.parseLong(itemJson.get("quantity").toString()));
+                //     OrderProducer.addItem(item);
+                // }
+
                 String response = "Item updated";
+                
                 exchange.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream responseBody = exchange.getResponseBody();
                 responseBody.write(response.getBytes());

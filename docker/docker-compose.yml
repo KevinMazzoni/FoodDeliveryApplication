@@ -9,6 +9,7 @@ services:
     volumes:
       - ./angular_container/files:/files
       - ../../FoodDeliveryApplication-FrontEnd:/usr/src/app
+  
 
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.8

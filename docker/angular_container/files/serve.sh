@@ -5,4 +5,6 @@ cd /usr/src/app/
 # npm update
 # npm install
 
-npm start 
+
+# node_modules/.bin/ng serve --proxy-config proxy.conf.json --port 4200
+npm start

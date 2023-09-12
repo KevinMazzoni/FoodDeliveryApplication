@@ -1,9 +1,10 @@
 FROM node:latest
 
-# RUN npm install -g @angular/cli
-# # RUN npm cache clean --force
+# RUN npm cache clean --force
 # WORKDIR /usr/src/app
+# RUN npm install -g @angular/cli
 # COPY . .
 # RUN npm install
+
 EXPOSE 4200
 CMD ./files/serve.sh 
